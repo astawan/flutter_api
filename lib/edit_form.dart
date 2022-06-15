@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:chat_app/zodiac.class.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class EditForm extends StatefulWidget {
   const EditForm({Key? key, required this.data}) : super(key: key);
@@ -19,10 +23,10 @@ class _EditFormState extends State<EditForm> {
   @protected
   @mustCallSuper
   void initState() {
-    fotoZodiakController.text = widget.data['photo'];
-    namaZodiakController.text = widget.data['name'];
-    tanggalZodiakController.text = widget.data['date'];
-    deskripsiZodiakController.text = widget.data['description'];
+    fotoZodiakController.text = widget.data.photo;
+    namaZodiakController.text = widget.data.name;
+    tanggalZodiakController.text = widget.data.date;
+    deskripsiZodiakController.text = widget.data.description;
   }
 
   @override
@@ -127,19 +131,44 @@ class _EditFormState extends State<EditForm> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState?.validate() ?? false) {
-            Map returnData = {
-              'photo': fotoZodiakController.text,
-              'name': namaZodiakController.text,
-              'date': tanggalZodiakController.text,
-              'description': deskripsiZodiakController.text,
-            };
-            Navigator.pop(context, returnData);
+            final result = await update();
+            Navigator.pop(context, result);
           }
         },
         child: Icon(Icons.save),
       ),
     );
+  }
+
+  Future<dynamic> update() async {
+    final map = new Map<String, dynamic>();
+    map['id'] = widget.data.id.toString();
+    map['photo'] = fotoZodiakController.text;
+    map['name'] = namaZodiakController.text;
+    map['date'] = tanggalZodiakController.text;
+    map['description'] = deskripsiZodiakController.text;
+    final response = await http.post(
+      Uri.parse('http://localhost/zodiac/update.php'),
+      body: map,
+    );
+    if (jsonDecode(response.body)['statusCode'] == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      final Map json = {
+        'id': widget.data.id.toString(),
+        'photo': fotoZodiakController.text,
+        'name': namaZodiakController.text,
+        'date': tanggalZodiakController.text,
+        'description': deskripsiZodiakController.text,
+      };
+      final returnData = jsonEncode(json);
+      return Zodiac.fromJson(jsonDecode(returnData));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to create zodiac.');
+    }
   }
 }

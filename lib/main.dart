@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:chat_app/add_form.dart';
 import 'package:chat_app/edit_form.dart';
+import 'package:chat_app/zodiac.class.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -30,65 +34,79 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Map> zodiacs = [
-    {
-      'photo': 'https://www.astrology-zodiac-signs.com/images/aquarius.jpg',
-      'name': 'Aquarius',
-      'date': 'January 20 - Febuary 18',
-      'description': 'Aquarius is the sign different from the rest of the zodiac and people born with their Sun in it feel special.',
-    },
-  ];
+  late Future<List<Zodiac>> futureZodiac;
+  List<Zodiac> zodiacs = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    futureZodiac = fetchZodiac();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        itemCount: zodiacs.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () => _navigateAndDisplayEditForm(context, index),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Image.network(
-                    zodiacs[index]['photo'],
-                    width: 75.0,
-                    height: 75.0,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            zodiacs[index]['name'],
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+      body: FutureBuilder<List<Zodiac>>(
+        future: futureZodiac,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            zodiacs = snapshot.data!;
+            return ListView.builder(
+              itemCount: zodiacs.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () => _navigateAndDisplayEditForm(context, index),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image.network(
+                          zodiacs[index].photo,
+                          width: 75.0,
+                          height: 75.0,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  zodiacs[index].name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(zodiacs[index].date),
+                                const SizedBox(
+                                  height: 8.0,
+                                ),
+                                Text(
+                                  zodiacs[index].description,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Colors.black.withOpacity(0.3)),
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(zodiacs[index]['date']),
-                          const SizedBox(
-                            height: 8.0,
-                          ),
-                          Text(
-                            zodiacs[index]['description'],
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.black.withOpacity(0.3)),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const Icon(
+                          Icons.arrow_circle_right_outlined,
+                          color: Colors.blue,
+                        ),
+                      ],
                     ),
                   ),
-                  const Icon(
-                    Icons.arrow_circle_right_outlined,
-                    color: Colors.blue,
-                  ),
-                ],
-              ),
-            ),
-          );
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+
+          return const CircularProgressIndicator();
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -98,6 +116,25 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  Future<List<Zodiac>> fetchZodiac() async {
+    final res = await http.get(Uri.parse('http://localhost/zodiac/get.php'));
+
+    if (res.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      final data = jsonDecode(res.body)['data'];
+      List<Zodiac> listZodiac = [];
+      for (var dat in data) {
+        listZodiac.add(Zodiac.fromJson(dat));
+      }
+      return listZodiac;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 
   // A method that launches the SelectionScreen and awaits the result from
