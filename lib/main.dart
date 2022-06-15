@@ -1,5 +1,5 @@
-import 'dart:ui';
-
+import 'package:chat_app/add_form.dart';
+import 'package:chat_app/edit_form.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -30,19 +30,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Map> listTiles = [
+  List<Map> zodiacs = [
     {
       'photo': 'https://www.astrology-zodiac-signs.com/images/aquarius.jpg',
       'name': 'Aquarius',
       'date': 'January 20 - Febuary 18',
       'description': 'Aquarius is the sign different from the rest of the zodiac and people born with their Sun in it feel special.',
-    },
-    {
-      'photo': 'https://www.astrology-zodiac-signs.com/images/pisces.jpg',
-      'name': 'Pisces',
-      'date': 'February 19 - March 20',
-      'description':
-          'Pisces are very friendly and often find themselves in company of very different people. They are selfless and always willing to help others, a very fine intent for as long as they don’t expect anything much in return.',
     },
   ];
   @override
@@ -52,49 +45,92 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.builder(
-        itemCount: listTiles.length,
+        itemCount: zodiacs.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Image.network(
-                  listTiles[index]['photo'],
-                  width: 75.0,
-                  height: 75.0,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          listTiles[index]['name'],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(listTiles[index]['date']),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          listTiles[index]['description'],
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.black.withOpacity(0.3)),
-                        ),
-                      ],
+          return InkWell(
+            onTap: () => _navigateAndDisplayEditForm(context, index),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Image.network(
+                    zodiacs[index]['photo'],
+                    width: 75.0,
+                    height: 75.0,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            zodiacs[index]['name'],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(zodiacs[index]['date']),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          Text(
+                            zodiacs[index]['description'],
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: Colors.black.withOpacity(0.3)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Icon(
-                  Icons.arrow_circle_right_outlined,
-                  color: Colors.blue,
-                ),
-              ],
+                  const Icon(
+                    Icons.arrow_circle_right_outlined,
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _navigateAndDisplayAddForm(context);
+        },
+        child: Icon(Icons.add),
+      ),
     );
+  }
+
+  // A method that launches the SelectionScreen and awaits the result from
+  // Navigator.pop.
+  Future<void> _navigateAndDisplayAddForm(BuildContext context) async {
+    // Navigator.push returns a Future that completes after calling
+    // Navigator.pop on the Selection Screen.
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddForm()),
+    );
+    if (result != null) {
+      setState(() {
+        zodiacs.add(result);
+      });
+    }
+  }
+
+  // A method that launches the SelectionScreen and awaits the result from
+  // Navigator.pop.
+  Future<void> _navigateAndDisplayEditForm(BuildContext context, int index) async {
+    // Navigator.push returns a Future that completes after calling
+    // Navigator.pop on the Selection Screen.
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditForm(data: zodiacs[index]),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        zodiacs[index] = result;
+      });
+    }
   }
 }
