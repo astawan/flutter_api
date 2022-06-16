@@ -13,6 +13,11 @@ class _AddFormState extends State<AddForm> {
   final deskripsiZodiakController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     fotoZodiakController.dispose();
