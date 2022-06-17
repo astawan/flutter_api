@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:chat_app/zodiac.class.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddForm extends StatefulWidget {
   @override
@@ -119,19 +123,43 @@ class _AddFormState extends State<AddForm> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState?.validate() ?? false) {
-            Map returnData = {
-              'photo': fotoZodiakController.text,
-              'name': namaZodiakController.text,
-              'date': tanggalZodiakController.text,
-              'description': deskripsiZodiakController.text,
-            };
-            Navigator.pop(context, returnData);
+            final result = await insert();
+            Navigator.pop(context, result);
           }
         },
         child: Icon(Icons.save),
       ),
     );
+  }
+
+  Future<dynamic> insert() async {
+    final map = new Map<String, dynamic>();
+    map['photo'] = fotoZodiakController.text;
+    map['name'] = namaZodiakController.text;
+    map['date'] = tanggalZodiakController.text;
+    map['description'] = deskripsiZodiakController.text;
+    final response = await http.post(
+      Uri.parse('http://localhost/zodiac/insert.php'),
+      body: map,
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      final Map json = {
+        'id': jsonDecode(response.body)['data'].toString(),
+        'photo': fotoZodiakController.text,
+        'name': namaZodiakController.text,
+        'date': tanggalZodiakController.text,
+        'description': deskripsiZodiakController.text,
+      };
+      final returnData = jsonEncode(json);
+      return Zodiac.fromJson(jsonDecode(returnData));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to create zodiac.');
+    }
   }
 }
