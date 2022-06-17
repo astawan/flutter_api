@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:chat_app/add_form.dart';
-import 'package:chat_app/edit_form.dart';
 import 'package:chat_app/zodiac.class.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Flutter Zodiac'),
     );
   }
 }
@@ -129,38 +127,4 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return zodiacs;
   }
-
-  // A method that launches the SelectionScreen and awaits the result from
-  // Navigator.pop.
-  // Future<void> _navigateAndDisplayAddForm(BuildContext context) async {
-  //   // Navigator.push returns a Future that completes after calling
-  //   // Navigator.pop on the Selection Screen.
-  //   final result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => AddForm()),
-  //   );
-  //   if (result != null) {
-  //     setState(() {
-  //       zodiacs.add(result);
-  //     });
-  //   }
-  // }
-
-  // A method that launches the SelectionScreen and awaits the result from
-  // Navigator.pop.
-  // Future<void> _navigateAndDisplayEditForm(BuildContext context, int index) async {
-  //   // Navigator.push returns a Future that completes after calling
-  //   // Navigator.pop on the Selection Screen.
-  //   final result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => EditForm(data: zodiacs[index]),
-  //     ),
-  //   );
-  //   if (result != null) {
-  //     setState(() {
-  //       zodiacs[index] = result;
-  //     });
-  //   }
-  // }
 }
