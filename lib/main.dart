@@ -120,10 +120,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {}
 
   Future<List<Zodiac>> fetchZodiac() async {
-    final response = await http.get(Uri.parse('http://172.70.8.42/zodiac/get.php'));
+    final response = await http.get(Uri.parse('http://localhost/zodiac/get.php'));
 
     final decoded = jsonDecode(response.body)['data'];
-    final List<Zodiac> zodiacs = decoded.map((json) => Zodiac.fromJson(json)).toList();
+    final List<Zodiac> zodiacs = [];
+    for (final z in decoded) {
+      zodiacs.add(Zodiac.fromJson(z));
+    }
     return zodiacs;
   }
 

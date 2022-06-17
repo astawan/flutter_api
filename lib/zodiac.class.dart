@@ -13,13 +13,13 @@ class Zodiac {
     required this.description,
   });
 
-  factory Zodiac.fromJson(Map<String, String> json) {
+  factory Zodiac.fromJson(Map<dynamic, dynamic> json) {
     return Zodiac(
-      id: json['id'] as int,
-      photo: json['photo'] as String,
-      name: json['name'] as String,
-      date: json['date'] as String,
-      description: json['description'] as String,
+      id: int.parse(json['id']),
+      photo: json['photo'],
+      name: json['name'],
+      date: json['date'],
+      description: json['description'],
     );
   }
 }
